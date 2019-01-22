@@ -56,7 +56,7 @@ do_ping()
       url="$RCLONE_CHECKING_URL"
     fi
 
-    header='--header="User-Agent: LOGS=$LOGS JOB=$RCLONE_JOBNAME SOURCE=$RCLONE_SOURCE DEST=$RCLONE_DEST"'
+    header='--header="User-Agent: MSG=$2 LOGS=$LOGS JOB=$RCLONE_JOBNAME SOURCE=$RCLONE_SOURCE DEST=$RCLONE_DEST"'
     cmd="wget $header $url -q -O /dev/null"
     eval "$cmd"
   fi
@@ -117,7 +117,7 @@ then
   if ! ( ls -1A $RCLONE_SOURCE | grep -q . );
   then
     do_echo "ERROR" "$RCLONE_SOURCE folder is empty."
-    do_ping "fail"
+    do_ping "fail" "source folder empty"
     exit 1
   fi
 fi
@@ -128,7 +128,7 @@ fi
 if [ -z "$RCLONE_DEST" ];
 then
   do_echo "ERROR" "RCLONE_DEST environment variable was not passed."
-  do_ping "fail"
+  do_ping "fail" "no dest folder"
   exit 1
 fi
 
@@ -191,7 +191,7 @@ RCLONE_LOGS="-vvv --log-file=$LOGS"
   flock -n 300 ||
   { 
     do_echo "ERROR" "Another cron still runing." 
-    do_ping "fail"
+    do_ping "fail" "concurrent job"
     exit 1
   }
 
@@ -219,7 +219,7 @@ RCLONE_LOGS="-vvv --log-file=$LOGS"
 
   else
     do_echo "ERROR" "The transfer has not completed. rclone exit with error. Please check logs at $LOGS"
-    do_ping "fail"
+    do_ping "fail" "rclone exit with error"
     exit 1
   fi
 
