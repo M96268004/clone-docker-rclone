@@ -11,7 +11,7 @@ FORK FROM tynor88/docker-rclone
 * `-v RCLONE_METHOD` Else then copy/sync should using RCLONE_CMD instead.
 * `-e RCLONE_CMD` A custom rclone command which will override the default value of: rclone $RCLONE_METHOD $RCLONE_SOURCE $RCLONE_DEST/$RCLONE_JOBNAME
 * `-e RCLONE_SOURCE` The srouce folder, should not be empty.
-* `-e RCLONE_DEST` The destination that the data should be backued up to (must be the same name as specified in .rclone.conf)
+* `-e RCLONE_DEST` REQUIRED/The destination that the data should be backued up to (must be the same name as specified in .rclone.conf)
 * `-e RCLONE_OPTIONS` Additional options. See rclone docs for additional options.
 * `-e RCLONE_CHECKING_URL` Health check service. like healthchecks.io
 * `-e RCLONE_MOVE_OLD_FILES_TO` dated_directory, will move old files to a dated folder. dated_files, will move old files to a folder named by date and append date and time to file name. If not specified, old file will be overwritted or deleted.

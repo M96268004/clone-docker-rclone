@@ -47,18 +47,34 @@ do_echo_settings()
 
 do_ping()
 {
-  url="$RCLONE_CHECKING_URL/$1"
+  if [ "$HC" -eq 1 ];
+  then
+    url="$RCLONE_CHECKING_URL/$1"
 
-  if [ -z "$1" ];
-  then 
-    url="$RCLONE_CHECKING_URL"
+    if [ -z "$1" ];
+    then 
+      url="$RCLONE_CHECKING_URL"
+    fi
+
+    header='--header="User-Agent: LOGS=$LOGS JOB=$RCLONE_JOBNAME SOURCE=$RCLONE_SOURCE DEST=$RCLONE_DEST"'
+    cmd="wget $header $url -q -O /dev/null"
+    eval "$cmd"
   fi
-
-  header='--header="User-Agent: LOGS=$LOGS JOB=$RCLONE_JOBNAME SOURCE=$RCLONE_SOURCE DEST=$RCLONE_DEST"'
-  cmd="wget $header $url -q -O /dev/null"
-  eval "$cmd"
 }
 ########## parameters ##########
+
+
+#
+#--- Setting monitoring url
+#
+if [ -z "$RCLONE_CHECKING_URL" ];
+then
+  do_echo "INFO" "A health check has not been set. Not using health check services"
+
+else
+  do_echo "INFO" "RCLONE_CHECKING_URL:$RCLONE_CHECKING_URL"
+  HC=1
+fi
 
 #
 #-- Start healthcheck
@@ -158,17 +174,6 @@ then
 
 else
   do_echo "INFO" "RCLONE_OPTIONS:$RCLONE_OPTIONS"
-fi
-
-#
-#--- Setting monitoring url
-#
-if [ -z "$RCLONE_CHECKING_URL" ];
-then
-  do_echo "INFO" "A health check has not been set. Not using health check services"
-
-else
-  do_echo "INFO" "RCLONE_CHECKING_URL:$RCLONE_CHECKING_URL"
 fi
 
 #
