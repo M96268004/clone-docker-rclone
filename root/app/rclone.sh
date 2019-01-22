@@ -106,7 +106,7 @@ fi
 if [ -z "$RCLONE_SOURCE" ];
 then
   RCLONE_SOURCE="/data"
-  do_echo "INFO" "RCLONE_SOURCE has not been set, default value "/data" has been applied."
+  do_echo "INFO" "RCLONE_SOURCE has not been set, default value \"/data\" has been applied."
 fi
 
 #
@@ -139,8 +139,8 @@ fi
 #
 if [ -z "$RCLONE_MOVE_OLD_FILES_TO" ];
 then
-  MOVE_OLD_FILES_TO="dated_directory"
-  do_echo "INFO" "MOVE_OLD_FILES_TO has not been set, default value "dated_directory" has been applied."
+  RCLONE_MOVE_OLD_FILES_TO="dated_directory"
+  do_echo "INFO" "RCLONE_MOVE_OLD_FILES_TO has not been set, default value \"dated_directory\" has been applied."
 fi
 
 #
