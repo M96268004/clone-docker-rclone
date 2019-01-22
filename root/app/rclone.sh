@@ -152,7 +152,7 @@ then
 
 elif [ "$RCLONE_MOVE_OLD_FILES_TO" = "dated_files" ];
 then
-  RCLONE_BACKUP_DIR="--BACKUP-DIR=$RCLONE_DEST/$RCLONE_JOBNAME-archive/$DATE_NOW --suffix=_$TIME_NOW"
+  RCLONE_BACKUP_DIR="--backup-dir=$RCLONE_DEST/$RCLONE_JOBNAME-archive/$DATE_NOW --suffix=_$TIME_NOW"
 
 else [ "$RCLONE_MOVE_OLD_FILES_TO" = "overwritten_deleted" ];
   RCLONE_BACKUP_DIR=""  
