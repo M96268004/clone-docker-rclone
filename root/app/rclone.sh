@@ -112,11 +112,14 @@ fi
 #
 #--- Checking if source if empty folder
 #
-if ! ( ls -1A $RCLONE_SOURCE | grep -q . );
+if [ "$RCLONE_SOURCE" = "/data" ];
 then
-  do_echo "ERROR" "$RCLONE_SOURCE folder is empty."
-  do_ping "fail"
-  exit 1
+  if ! ( ls -1A $RCLONE_SOURCE | grep -q . );
+  then
+    do_echo "ERROR" "$RCLONE_SOURCE folder is empty."
+    do_ping "fail"
+    exit 1
+  fi
 fi
 
 #
