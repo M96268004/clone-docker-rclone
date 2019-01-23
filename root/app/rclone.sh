@@ -4,6 +4,7 @@
 DATE_NOW=$(date +%F)
 TIME_NOW=$(date +%H_%M_%S)
 DATE_TIME="$DATE_NOW"_"$TIME_NOW"
+RUN_ID=$(date +%s)
 
 LOGS=/config/rclone-$DATE_TIME.log
 SLOGS=/config/rclone-log-$DATE_NOW.log
@@ -67,7 +68,7 @@ do_ping()
       url="$RCLONE_CHECKING_URL"
     fi
 
-    header='--header="User-Agent: MSG=$2 LOGS=$LOGS JOB=$RCLONE_JOBNAME SOURCE=$RCLONE_SOURCE DEST=$RCLONE_DEST"'
+    header='--header="User-Agent: ID=$RUN_ID MSG=$2 LOGS=$LOGS JOB=$RCLONE_JOBNAME"'
     cmd="wget $header $url -q -O /dev/null"
     eval "$cmd"
   fi
