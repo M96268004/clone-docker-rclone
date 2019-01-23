@@ -22,6 +22,7 @@ RUN \
 		wget \
 		curl \
 		unzip && \
+ apk add --no-cache tzdata && \
 # add s6 overlay
  OVERLAY_VERSION=$(curl -sX GET "https://api.github.com/repos/just-containers/s6-overlay/releases/latest" \
 	| awk '/tag_name/{print $4;exit}' FS='[""]') && \
@@ -43,10 +44,7 @@ RUN \
 	/tmp/* \
 	/var/tmp/* \
 	/var/cache/apk/*
-# add timezone
-RUN \
- apk add tzdata && \
- ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone
+
 # create abc user
 RUN \
 	groupmod -g 1000 users && \

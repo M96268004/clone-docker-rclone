@@ -5,8 +5,8 @@ DATE_NOW=$(date +%F)
 TIME_NOW=$(date +%H_%M_%S)
 DATE_TIME="$DATE_NOW"_"$TIME_NOW"
 
-LOGS=/config/rclone-$DATE_NOW.log
-
+LOGS=/config/rclone-$DATE_TIME.log
+SLOGS=/config/rclone-log-$DATE_NOW.log
 
 ########## functions ##########
 do_log()
@@ -19,10 +19,10 @@ do_echo()
 {
   urgency="$1"
   msg="$2"
-  message="${urgency}: $msg"
+  message="$(date +%F_%T) ${urgency}: $msg"
   
   echo "$message"
-  do_log "$(date +%F_%T) $message"
+  do_log "$message"
 }
 
 do_echo_settings()
@@ -79,7 +79,7 @@ fi
 #
 #-- Start healthcheck
 #
-do_ping "start"
+do_ping "start" "$LOGS"
 
 #
 #-- Setting default job name
@@ -89,7 +89,7 @@ do_ping "start"
 if [ -z "$RCLONE_JOBNAME" ];
 then
   RCLONE_JOBNAME="current"
-  do_echo "INFO" "RCLONE_JOBNAME has not been set, default value "current" has been applied."
+  do_echo "INFO" "RCLONE_JOBNAME has not been set, default value [current] has been applied."
 fi
 
 #
@@ -98,7 +98,7 @@ fi
 if [ -z "$RCLONE_METHOD" ];
 then
   RCLONE_METHOD="sync"
-  do_echo "INFO" "RCLONE_METHOD has not been set, default value "sync" has been applied."
+  do_echo "INFO" "RCLONE_METHOD has not been set, default value [sync] has been applied."
 fi
 #
 #--- Setting default source path
@@ -106,7 +106,7 @@ fi
 if [ -z "$RCLONE_SOURCE" ];
 then
   RCLONE_SOURCE="/data"
-  do_echo "INFO" "RCLONE_SOURCE has not been set, default value \"/data\" has been applied."
+  do_echo "INFO" "RCLONE_SOURCE has not been set, default value [/data] has been applied."
 fi
 
 #
@@ -143,7 +143,7 @@ fi
 if [ -z "$RCLONE_MOVE_OLD_FILES_TO" ];
 then
   RCLONE_MOVE_OLD_FILES_TO="dated_directory"
-  do_echo "INFO" "RCLONE_MOVE_OLD_FILES_TO has not been set, default value \"dated_directory\" has been applied."
+  do_echo "INFO" "RCLONE_MOVE_OLD_FILES_TO has not been set, default value [dated_directory] has been applied."
 fi
 
 #
@@ -214,6 +214,8 @@ RCLONE_LOGS="-vvv --log-file=$LOGS"
   if [ "$RCLONE_EXIT_CODE" -eq 0 ];
   then
     do_echo "INFO" "The transfer has completed. For more info please referr to $LOGS"
+    EXPORT_LOG="cat $LOGS >> $SLOG && rm $LOGS"
+    eval "$EXPORT_LOG"
     do_ping
     exit 0
 
@@ -223,6 +225,6 @@ RCLONE_LOGS="-vvv --log-file=$LOGS"
     exit 1
   fi
 
-) 300>/var/lock/rclone-backup.lock
+) 300>/var/lock/rclone.lock
 
 
