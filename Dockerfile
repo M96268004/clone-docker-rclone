@@ -22,7 +22,6 @@ RUN \
 		wget \
 		curl \
 		unzip && \
- apk add --no-cache tzdata && \
 # add s6 overlay
  OVERLAY_VERSION=$(curl -sX GET "https://api.github.com/repos/just-containers/s6-overlay/releases/latest" \
 	| awk '/tag_name/{print $4;exit}' FS='[""]') && \
@@ -36,6 +35,7 @@ RUN \
  unzip /tmp/rclone-v${RCLONE_VERSION}-linux-${PLATFORM_ARCH}.zip && \
  mv /tmp/rclone-*-linux-${PLATFORM_ARCH}/rclone /usr/bin && \
  apk add --no-cache --repository http://nl.alpinelinux.org/alpine/edge/community \
+ 	tzdata \
 	shadow && \
 # cleanup
  apk del --purge \
@@ -60,3 +60,4 @@ COPY root/ /
 VOLUME ["/config"]
 
 ENTRYPOINT ["/init"]
+

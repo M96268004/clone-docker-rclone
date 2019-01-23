@@ -4,9 +4,9 @@
 DATE_NOW=$(date +%F)
 TIME_NOW=$(date +%H_%M_%S)
 DATE_TIME="$DATE_NOW"_"$TIME_NOW"
-RUN_ID=$(date +%N)
+RUN_ID=$(< /dev/urandom tr -dc 0-9 | head -c${1:-8})
 
-LOGS=/config/rclone-$DATE_TIME.log
+LOGS=/config/rclone-$RUN_ID-$DATE_TIME.log
 SLOGS=/config/rclone-log-$DATE_NOW.log
 
 ########## static files ##########
@@ -16,7 +16,7 @@ SLOGS=/config/rclone-log-$DATE_NOW.log
 
 if [ "$RCLONE_JOBNAME" ];
 then
-  LOGS=/config/rclone-$RCLONE_JOBNAME-$DATE_TIME.log
+  LOGS=/config/rclone-$RUN_ID-$RCLONE_JOBNAME-$DATE_TIME.log
   SLOGS=/config/rclone-log-$RCLONE_JOBNAME-$DATE_NOW.log
 fi
 
@@ -31,7 +31,7 @@ do_echo()
 {
   urgency="$1"
   msg="$2"
-  message="$(date +%F_%T) ${urgency}: $msg"
+  message="$RUN_ID | $(date +%F_%T) ${urgency}: $msg"
   
   echo "$message"
   do_log "$message"
