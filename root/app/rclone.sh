@@ -4,7 +4,7 @@
 DATE_NOW=$(date +%F)
 TIME_NOW=$(date +%H_%M_%S)
 DATE_TIME="$DATE_NOW"_"$TIME_NOW"
-RUN_ID=$(date +%s)
+RUN_ID=$(date +%N)
 
 LOGS=/config/rclone-$DATE_TIME.log
 SLOGS=/config/rclone-log-$DATE_NOW.log
