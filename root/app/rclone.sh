@@ -8,6 +8,17 @@ DATE_TIME="$DATE_NOW"_"$TIME_NOW"
 LOGS=/config/rclone-$DATE_TIME.log
 SLOGS=/config/rclone-log-$DATE_NOW.log
 
+########## static files ##########
+
+LOGS=/config/rclone-$DATE_TIME.log
+SLOGS=/config/rclone-log-$DATE_NOW.log
+
+if [ "$RCLONE_JOBNAME" ];
+then
+  LOGS=/config/rclone-$RCLONE_JOBNAME-$DATE_TIME.log
+  SLOGS=/config/rclone-log-$RCLONE_JOBNAME-$DATE_NOW.log
+fi
+
 ########## functions ##########
 do_log()
 {
@@ -79,7 +90,7 @@ fi
 #
 #-- Start healthcheck
 #
-do_ping "start" "$LOGS"
+do_ping "start"
 
 #
 #-- Setting default job name
@@ -214,7 +225,7 @@ RCLONE_LOGS="-vvv --log-file=$LOGS"
   if [ "$RCLONE_EXIT_CODE" -eq 0 ];
   then
     do_echo "INFO" "The transfer has completed. For more info please referr to $LOGS"
-    EXPORT_LOG="cat $LOGS >> $SLOG && rm $LOGS"
+    EXPORT_LOG="cat $LOGS >> $SLOGS && rm $LOGS"
     eval "$EXPORT_LOG"
     do_ping
     exit 0
