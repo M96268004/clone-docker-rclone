@@ -162,7 +162,7 @@ fi
 #
 if [ "$RCLONE_MOVE_OLD_FILES_TO" = "dated_directory" ];
 then
-  RCLONE_BACKUP_DIR="--backup-dir=$RCLONE_DEST/$RCLONE_JOBNAME-archive/$DATE_NOW/$DATE_TIME"
+  RCLONE_BACKUP_DIR="--backup-dir=$RCLONE_DEST/$RCLONE_JOBNAME-archive/$DATE_NOW/$TIME_NOW"
 
 elif [ "$RCLONE_MOVE_OLD_FILES_TO" = "dated_files" ];
 then
