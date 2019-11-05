@@ -98,103 +98,107 @@ do_ping "start"
 # This will be using as the top level folder name
 # The first time rclone copy/sync will be in this folder
 # It is the current snapshot of the source
-if [ -z "$RCLONE_JOBNAME" ];
+if [ -z "$RCLONE_CMD" ];
 then
-  RCLONE_JOBNAME="current"
-  do_echo "INFO" "RCLONE_JOBNAME has not been set, default value [current] has been applied."
-fi
-
-#
-#--- Setting default rclone method
-#
-if [ -z "$RCLONE_METHOD" ];
-then
-  RCLONE_METHOD="sync"
-  do_echo "INFO" "RCLONE_METHOD has not been set, default value [sync] has been applied."
-fi
-#
-#--- Setting default source path
-#
-if [ -z "$RCLONE_SOURCE" ];
-then
-  RCLONE_SOURCE="/data"
-  do_echo "INFO" "RCLONE_SOURCE has not been set, default value [/data] has been applied."
-fi
-
-#
-#--- Checking if source if empty folder
-#
-if [ "$RCLONE_SOURCE" = "/data" ];
-then
-  if ! ( ls -1A $RCLONE_SOURCE | grep -q . );
+  if [ -z "$RCLONE_JOBNAME" ];
   then
-    do_echo "ERROR" "$RCLONE_SOURCE folder is empty."
-    do_ping "fail" "source folder empty"
+    RCLONE_JOBNAME="current"
+    do_echo "INFO" "RCLONE_JOBNAME has not been set, default value [current] has been applied."
+  fi
+
+  #
+  #--- Setting default rclone method
+  #
+  if [ -z "$RCLONE_METHOD" ];
+  then
+    RCLONE_METHOD="sync"
+    do_echo "INFO" "RCLONE_METHOD has not been set, default value [sync] has been applied."
+  fi
+  #
+  #--- Setting default source path
+  #
+  if [ -z "$RCLONE_SOURCE" ];
+  then
+    RCLONE_SOURCE="/data"
+    do_echo "INFO" "RCLONE_SOURCE has not been set, default value [/data] has been applied."
+  fi
+
+  #
+  #--- Checking if source is empty folder
+  #
+  if [ "$RCLONE_SOURCE" = "/data" ];
+  then
+    if ! ( ls -1A $RCLONE_SOURCE | grep -q . );
+    then
+      do_echo "ERROR" "$RCLONE_SOURCE folder is empty."
+      do_ping "fail" "source folder empty"
+      exit 1
+    fi
+  fi
+
+  #
+  #--- End runtime if there is no destination path
+  #
+  if [ -z "$RCLONE_DEST" ];
+  then
+    do_echo "ERROR" "RCLONE_DEST environment variable was not passed."
+    do_ping "fail" "no dest folder"
     exit 1
   fi
+
+  #
+  #--- Setting default move_old_files_to path
+  # default will move old files to "dated_directory"
+  # the value should one of "dated_directory" "dated_files" "overwritten_deleted"
+  # "dated_directory" move old files to a dated directory like incremental backup
+  # "dated_files" move old files to "old_files" directory and append the time of moving 
+  # to the end of file name, also like incremental backup
+  # "overwritten_deleted" old files are overwirtten or deleted, like one way backup
+  #
+  if [ -z "$RCLONE_MOVE_OLD_FILES_TO" ];
+  then
+    RCLONE_MOVE_OLD_FILES_TO="dated_directory"
+    do_echo "INFO" "RCLONE_MOVE_OLD_FILES_TO has not been set, default value [dated_directory] has been applied."
+  fi
+
+  #
+  #--- Setting backup-dir
+  #
+  if [ "$RCLONE_MOVE_OLD_FILES_TO" = "dated_directory" ];
+  then
+    RCLONE_BACKUP_DIR="--backup-dir=$RCLONE_DEST/$RCLONE_JOBNAME-archive/$DATE_NOW/$TIME_NOW"
+
+  elif [ "$RCLONE_MOVE_OLD_FILES_TO" = "dated_files" ];
+  then
+    RCLONE_BACKUP_DIR="--backup-dir=$RCLONE_DEST/$RCLONE_JOBNAME-archive/$DATE_NOW --suffix=_$TIME_NOW"
+
+  else [ "$RCLONE_MOVE_OLD_FILES_TO" = "overwritten_deleted" ];
+    RCLONE_BACKUP_DIR=""  
+  fi
+
+  if [ "$RCLONE_BACKUP_DIR" ];
+  then
+    do_echo "INFO" "RCLONE_MOVE_OLD_FILE_TO:$RCLONE_MOVE_OLD_FILES_TO"
+    do_echo "INFO" "RCLONE_BACKUP_DIR:$RCLONE_BACKUP_DIR"
+  fi
+
+  #
+  #--- Setting other options
+  #
+  if [ -z "$RCLONE_OPTIONS" ];
+  then
+    RCLONE_OPTIONS=""
+    do_echo "INFO" "RCLONE_OPTIONS:$RCLONE_OPTIONS"
+
+  else
+    do_echo "INFO" "RCLONE_OPTIONS:$RCLONE_OPTIONS"
+  fi
+
+  #
+  #--- Setting Log
+  #
+  RCLONE_LOGS="-vvv --log-file=$LOGS"
 fi
-
-#
-#--- End runtime if there is no destination path
-#
-if [ -z "$RCLONE_DEST" ];
-then
-  do_echo "ERROR" "RCLONE_DEST environment variable was not passed."
-  do_ping "fail" "no dest folder"
-  exit 1
-fi
-
-#
-#--- Setting default move_old_files_to path
-# default will move old files to "dated_directory"
-# should one of "dated_directory" "dated_files"
-# "dated_directory" move old files to a dated directory like incremental backup
-# "dated_files" move old files to "old_files" directory and append move date to file name like incremental backup
-# "overwritten_deleted" old files are overwirtten or deleted one way backup
-#
-if [ -z "$RCLONE_MOVE_OLD_FILES_TO" ];
-then
-  RCLONE_MOVE_OLD_FILES_TO="dated_directory"
-  do_echo "INFO" "RCLONE_MOVE_OLD_FILES_TO has not been set, default value [dated_directory] has been applied."
-fi
-
-#
-#--- Setting backup-dir
-#
-if [ "$RCLONE_MOVE_OLD_FILES_TO" = "dated_directory" ];
-then
-  RCLONE_BACKUP_DIR="--backup-dir=$RCLONE_DEST/$RCLONE_JOBNAME-archive/$DATE_NOW/$TIME_NOW"
-
-elif [ "$RCLONE_MOVE_OLD_FILES_TO" = "dated_files" ];
-then
-  RCLONE_BACKUP_DIR="--backup-dir=$RCLONE_DEST/$RCLONE_JOBNAME-archive/$DATE_NOW --suffix=_$TIME_NOW"
-
-else [ "$RCLONE_MOVE_OLD_FILES_TO" = "overwritten_deleted" ];
-  RCLONE_BACKUP_DIR=""  
-fi
-
-if [ "$RCLONE_BACKUP_DIR" ];
-then
-  do_echo "INFO" "RCLONE_MOVE_OLD_FILE_TO:$RCLONE_MOVE_OLD_FILES_TO"
-  do_echo "INFO" "RCLONE_BACKUP_DIR:$RCLONE_BACKUP_DIR"
-fi
-
-#
-#--- Setting other options
-#
-if [ -z "$RCLONE_OPTIONS" ];
-then
-  RCLONE_OPTIONS=""
-  do_echo "INFO" "RCLONE_OPTIONS:$RCLONE_OPTIONS"
-
-else
-  do_echo "INFO" "RCLONE_OPTIONS:$RCLONE_OPTIONS"
-fi
-
-#
-#--- Setting Log
-#
-RCLONE_LOGS="-vvv --log-file=$LOGS"
 
 #
 #--- Start rclone job
@@ -213,7 +217,7 @@ RCLONE_LOGS="-vvv --log-file=$LOGS"
 # from env
   if [ "$RCLONE_CMD" ];
   then
-    CMD="$RCLONE_CMD"
+    CMD="$RCLONE_CMD $RCLONE_LOGS"
   fi
 
   do_echo_settings
