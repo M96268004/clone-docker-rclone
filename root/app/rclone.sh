@@ -11,8 +11,8 @@ SLOGS=/config/rclone-log-$DATE_NOW.log
 
 ########## static files ##########
 
-LOGS=/config/rclone-$DATE_TIME.log
-SLOGS=/config/rclone-log-$DATE_NOW.log
+#LOGS=/config/rclone-$DATE_TIME.log
+#SLOGS=/config/rclone-log-$DATE_NOW.log
 
 if [ "$RCLONE_JOBNAME" ];
 then
@@ -32,7 +32,7 @@ do_echo()
   urgency="$1"
   msg="$2"
   message="$RUN_ID | $(date +%F_%T) ${urgency}: $msg"
-  
+
   echo "$message"
   do_log "$message"
 }
@@ -52,7 +52,7 @@ do_echo_settings()
     do_echo "SETTING" "RCLONE_MOVE_OLD_FILES_TO : $RCLONE_MOVE_OLD_FILES_TO"
     do_echo "SETTING" "RCLONE_BACKUP_DIR        : $RCLONE_BACKUP_DIR"
   fi
-  
+
   do_echo "SETTING" "CMD                      : $CMD"
 
 }
@@ -64,7 +64,7 @@ do_ping()
     url="$RCLONE_CHECKING_URL/$1"
 
     if [ -z "$1" ];
-    then 
+    then
       url="$RCLONE_CHECKING_URL"
     fi
 
@@ -173,7 +173,7 @@ then
     RCLONE_BACKUP_DIR="--backup-dir=$RCLONE_DEST/$RCLONE_JOBNAME-archive/$DATE_NOW --suffix=_$TIME_NOW"
 
   else [ "$RCLONE_MOVE_OLD_FILES_TO" = "overwritten_deleted" ];
-    RCLONE_BACKUP_DIR=""  
+    RCLONE_BACKUP_DIR=""
   fi
 
   if [ "$RCLONE_BACKUP_DIR" ];
@@ -194,19 +194,21 @@ then
     do_echo "INFO" "RCLONE_OPTIONS:$RCLONE_OPTIONS"
   fi
 
-  #
-  #--- Setting Log
-  #
-  RCLONE_LOGS="-vvv --log-file=$LOGS"
 fi
+
+#
+#--- Setting Log
+#
+RCLONE_LOGS="-vvv --log-file=$LOGS"
+
 
 #
 #--- Start rclone job
 #
 (
   flock -n 300 ||
-  { 
-    do_echo "ERROR" "Another cron still runing." 
+  {
+    do_echo "ERROR" "Another cron still runing."
     do_ping "fail" "concurrent job"
     exit 1
   }
@@ -215,13 +217,13 @@ fi
   CMD="rclone $RCLONE_METHOD $RCLONE_SOURCE $RCLONE_DEST/$RCLONE_JOBNAME $RCLONE_OPTIONS $RCLONE_BACKUP_DIR $RCLONE_LOGS"
 
 # from env
-  if [ "$RCLONE_CMD" ];
+  if [ ! -z "$RCLONE_CMD" ];
   then
     CMD="$RCLONE_CMD $RCLONE_LOGS"
   fi
 
   do_echo_settings
-  
+
   eval "$CMD"
 
 # checking if exit code eq 0
