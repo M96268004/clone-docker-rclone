@@ -4,7 +4,7 @@
 DATE_NOW=$(date +%F)
 TIME_NOW=$(date +%H_%M_%S)
 DATE_TIME="$DATE_NOW"_"$TIME_NOW"
-RUN_ID=$(< /dev/urandom tr -dc 0-9 | head -c${1:-8})
+RUN_ID=$(cat /dev/urandom | tr -dc '0-9' | fold -w 5 | head -n 1)
 
 LOGS=/config/rclone-$RUN_ID-$DATE_TIME.log
 SLOGS=/config/rclone-log-$DATE_NOW.log
