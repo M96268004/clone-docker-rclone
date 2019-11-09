@@ -4,15 +4,16 @@
 DATE_NOW=$(date +%F)
 TIME_NOW=$(date +%H_%M_%S)
 DATE_TIME="$DATE_NOW"_"$TIME_NOW"
-RUN_ID=$(< /dev/urandom tr -dc 0-9 | head -c${1:-8})
+#RUN_ID=$(< /dev/urandom tr -dc 0-9 | head -c${1:-8})
+RUN_ID=$(tr -dc '0-9' < /dev/urandom | head -c5)
 
 LOGS=/config/rclone-$RUN_ID-$DATE_TIME.log
 SLOGS=/config/rclone-log-$DATE_NOW.log
 
 ########## static files ##########
 
-LOGS=/config/rclone-$DATE_TIME.log
-SLOGS=/config/rclone-log-$DATE_NOW.log
+#LOGS=/config/rclone-$DATE_TIME.log
+#SLOGS=/config/rclone-log-$DATE_NOW.log
 
 if [ "$RCLONE_JOBNAME" ];
 then
